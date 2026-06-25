@@ -8,8 +8,10 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
+  // Pooled connection at runtime; unpooled (direct) for migrations.
+  // Neon/Vercel integration provides DATABASE_URL (pooled) + DATABASE_URL_UNPOOLED.
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // One seeded admin account for the trial. Schema is multi-artist ready.

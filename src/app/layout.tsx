@@ -20,6 +20,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"),
   title: "SmartLink — one link for every platform",
   description: "Smart links for music artists. One page, every DSP, real analytics.",
 };
