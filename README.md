@@ -7,8 +7,9 @@ database, and there's a real Spotify **pre-save** flow on top.
 
 In the direction of Hypeddit / feature.fm — built as a working MVP.
 
-**Live demo:** _<add deployed URL here>_
-**Demo admin login:** `artist@smartlink.app` / `demo1234`
+**Live demo:** https://smartlink-beta.vercel.app
+**Demo pages:** [`/midnight-drive`](https://smartlink-beta.vercel.app/midnight-drive) · [`/golden-hour`](https://smartlink-beta.vercel.app/golden-hour)
+**Admin:** [`/admin`](https://smartlink-beta.vercel.app/admin) — `artist@smartlink.app` / `demo1234`
 
 ---
 
