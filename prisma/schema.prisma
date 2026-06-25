@@ -1,0 +1,87 @@
+// Smart Link Platform — data model
+// Real Postgres (local dev → Supabase prod). No mocked data.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// One seeded admin account for the trial. Schema is multi-artist ready.
+model Artist {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  smartLinks   SmartLink[]
+}
+
+model SmartLink {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String // track / release title
+  artistName  String
+  coverUrl    String
+  releaseDate DateTime?
+  // Theme constructor output: { background, font, accent, buttonStyle, ... }
+  themeConfig Json
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  artist   Artist         @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  artistId String
+  platforms PlatformLink[]
+  clicks    Click[]
+  preSaves  PreSave[]
+
+  @@index([artistId])
+}
+
+// Per-DSP destination link. dsp ∈ spotify|apple|youtube|amazon|deezer|...
+model PlatformLink {
+  id          String    @id @default(cuid())
+  dsp         String
+  url         String
+  position    Int       @default(0)
+  smartLink   SmartLink @relation(fields: [smartLinkId], references: [id], onDelete: Cascade)
+  smartLinkId String
+
+  @@index([smartLinkId])
+}
+
+// Real click event, written before redirect to the DSP.
+model Click {
+  id          String    @id @default(cuid())
+  dsp         String
+  createdAt   DateTime  @default(now())
+  userAgent   String?
+  country     String?
+  isPreSave   Boolean   @default(false)
+  smartLink   SmartLink @relation(fields: [smartLinkId], references: [id], onDelete: Cascade)
+  smartLinkId String
+
+  @@index([smartLinkId])
+  @@index([dsp])
+}
+
+// Spotify pre-save: stores real OAuth tokens + the user that pre-saved.
+model PreSave {
+  id            String    @id @default(cuid())
+  spotifyUserId String
+  accessToken   String
+  refreshToken  String?
+  expiresAt     DateTime?
+  saved         Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  smartLink     SmartLink @relation(fields: [smartLinkId], references: [id], onDelete: Cascade)
+  smartLinkId   String
+
+  @@unique([smartLinkId, spotifyUserId])
+  @@index([smartLinkId])
+}
