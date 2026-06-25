@@ -1,20 +1,26 @@
-# SmartLink — smart links for music artists
+# Linkhub — smart links for music artists
 
-One link, every platform. An artist creates a single page for a track or release;
-fans land on it and tap through to their platform of choice (Spotify, Apple Music,
-YouTube Music, Amazon Music, Deezer). Every tap is tracked per platform in a real
-database, and there's a real Spotify **pre-save** flow on top.
+One link, every platform. An artist signs up, runs a short onboarding, and gets a
+single beautiful page for a track or release; fans land on it and tap through to
+their platform of choice (Spotify, Apple Music, YouTube Music, Amazon Music,
+Deezer). Every tap is tracked per platform in a real database, and there's a real
+Spotify **pre-save** flow on top.
 
 In the direction of Hypeddit / feature.fm — built as a working MVP.
 
 **Live demo:** https://smartlink-beta.vercel.app
-**Demo pages:** [`/midnight-drive`](https://smartlink-beta.vercel.app/midnight-drive) · [`/golden-hour`](https://smartlink-beta.vercel.app/golden-hour)
-**Admin:** [`/admin`](https://smartlink-beta.vercel.app/admin) — `artist@smartlink.app` / `demo1234`
+**Demo pages:** [`/midnight-drive`](https://smartlink-beta.vercel.app/midnight-drive) · [`/golden-hour`](https://smartlink-beta.vercel.app/golden-hour) · [`/paper-hearts`](https://smartlink-beta.vercel.app/paper-hearts)
+**Try it yourself:** [`/admin`](https://smartlink-beta.vercel.app/admin) → **Create account** → onboarding builds your first page.
+**Demo login:** `artist@smartlink.app` / `demo1234`
 
 ---
 
 ## What it does
 
+- **Self-serve signup + onboarding** — anyone creates an account and is walked
+  through a 4-step wizard (release → platforms → design → publish) with a **live
+  phone preview** the whole way. They finish with their own link + QR to drop in a
+  bio. Each artist only sees their own pages (multi-tenant).
 - **Public smart-link page** (`/[slug]`) — cover-driven, mobile-first artist page
   listing the track across major DSPs. Designed to feel like a real music product,
   not a default template.
@@ -26,12 +32,13 @@ In the direction of Hypeddit / feature.fm — built as a working MVP.
   track straight to their library. *(The Spotify app is in development mode, so to
   actually complete a save your Spotify account must be on the app's allow-list —
   see "Trying the pre-save" below.)*
-- **Admin** (`/admin`) — password login, create/edit pages, and a per-platform
-  click dashboard with a 14-day trend.
+- **Admin** (`/admin`) — login, create/edit pages, and a per-platform click
+  dashboard with a 14-day trend.
 - **Theme constructor** (the surprise feature) — instead of fixed templates, each
-  artist *builds* their page look: background (cover-blur / gradient / solid),
-  font, accent colour (auto-extracted from the cover art), button style and corner
-  radius — with a **live phone preview** that updates as you type.
+  artist *builds* their page look: background (cover-blur / **custom uploaded
+  image** / gradient / solid), font, accent colour (auto-extracted from the cover
+  art), button style and corner radius — with a live phone preview that updates as
+  you type.
 - **Custom slug** per link, plus a **QR code** of the page for promo (flyers, stories).
 
 ## Stack & why
@@ -39,16 +46,17 @@ In the direction of Hypeddit / feature.fm — built as a working MVP.
 | Layer | Choice | Why |
 |---|---|---|
 | Framework | **Next.js 15** (App Router, TS) | One codebase for the public pages, admin and API routes; server components keep the public page fast and SEO-friendly. |
-| DB | **Postgres** (local dev → **Supabase** in prod) | Real relational data — links, platforms, clicks, pre-saves. |
+| DB | **Postgres** (local dev → **Neon** in prod, via Vercel) | Real relational data — artists, links, platforms, clicks, pre-saves. Runtime uses the direct (unpooled) connection for write reliability on serverless; at scale switch to the pooled URL with `?pgbouncer=true`. |
 | ORM | **Prisma 6** | Type-safe queries + migrations. (Pinned to 6 — 7 moved config to a new file mid-release; 6 is the stable production choice.) |
 | Styling | **Tailwind v4** | Fast, consistent, themeable via CSS variables. |
 | Auth | **iron-session** + bcrypt | Simple stateless cookie session for the admin. |
 | Pre-save | **Spotify Web API** (OAuth) | Real authorization-code flow, real library save. |
 | Extras | node-vibrant (accent from cover), qrcode (promo QR) | |
-| Hosting | **Vercel** + Supabase | |
+| Hosting | **Vercel** + Neon | |
 
-Single seeded admin account (the brief asked for a *simple* admin); the schema is
-already multi-artist ready (`Artist` owns many `SmartLink`s).
+Multi-tenant: each `Artist` owns their own `SmartLink`s and only sees their own in
+the dashboard. A seeded demo account (`artist@smartlink.app`) ships with example
+data; anyone can also self-register and onboard from scratch.
 
 ## Data model
 
@@ -104,17 +112,22 @@ src/
     [slug]/page.tsx              # public smart-link page
     api/go/[id]/route.ts         # click tracker -> 302 to DSP
     api/spotify/{login,callback} # real OAuth pre-save
-    admin/                       # login, links list, editor, stats
+    admin/                       # auth, onboarding, links list, editor, stats
   components/
     SmartLinkView.tsx            # the artist page (shared: public + live preview)
+    Logo.tsx                     # Linkhub brand mark
+    admin/OnboardingWizard.tsx   # 4-step self-serve setup
     admin/LinkEditor.tsx         # theme constructor + live phone preview
-  lib/                           # prisma, session, auth, dsp, theme, spotify, slug
+    admin/ThemeControls.tsx      # shared theme builder (wizard + editor)
+  lib/                           # prisma, session, auth, dsp, theme, spotify, slug, upload
 prisma/schema.prisma + seed.ts
 ```
 
 ## What I'd build next with more time
 
-- **Multi-artist signup** + per-artist dashboards (schema already supports it).
+- **Custom object storage** for uploaded backgrounds (currently compressed to an
+  inline data URL — fine for an MVP; Vercel Blob / S3 at scale).
+- **Password reset + email verification** for the signup flow.
 - **Pre-save on release day** — a scheduled job that uses the stored refresh tokens
   to add the track to every pre-saver's library the moment the release goes live
   (the current flow saves immediately, which is the right demo of the integration).
