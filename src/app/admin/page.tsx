@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getSession } from "@/lib/session";
-import { LoginForm } from "@/components/admin/LoginForm";
+import { AuthPanel } from "@/components/admin/AuthPanel";
+import { Logo } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -9,21 +11,25 @@ export default async function AdminLogin() {
   if (session.artistId) redirect("/admin/links");
 
   return (
-    <div className="admin-surface flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70">
-            ◆ SmartLink
-          </span>
-          <h1
-            className="mt-5 text-2xl font-bold"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Artist admin
-          </h1>
-          <p className="mt-2 text-[14px] text-white/50">Sign in to manage your pages</p>
+    <div className="admin-surface flex min-h-screen flex-col px-6">
+      <header className="py-6">
+        <Link href="/">
+          <Logo size={24} textClass="text-[17px]" />
+        </Link>
+      </header>
+      <div className="flex flex-1 items-center justify-center pb-16">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center">
+            <h1
+              className="text-[28px] font-bold tracking-[-0.02em]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Your studio
+            </h1>
+            <p className="mt-2 text-[14px] text-white/50">Build your smart link in minutes</p>
+          </div>
+          <AuthPanel />
         </div>
-        <LoginForm />
       </div>
     </div>
   );

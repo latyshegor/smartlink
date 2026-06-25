@@ -73,13 +73,13 @@ export function SmartLinkView({ link, platforms, theme, preview = false }: Props
       className="relative flex min-h-full w-full flex-col items-center overflow-hidden"
       style={{ ...backgroundStyle(theme), fontFamily: FONT_VAR[theme.font], color: text }}
     >
-      {/* Cover-driven blurred backdrop */}
-      {theme.background === "cover" && (
+      {/* Cover-driven or custom-image blurred backdrop */}
+      {(theme.background === "cover" || (theme.background === "image" && theme.bgImage)) && (
         <>
           <div
             className="pointer-events-none absolute inset-0 scale-125"
             style={{
-              backgroundImage: `url(${link.coverUrl})`,
+              backgroundImage: `url(${theme.background === "image" ? theme.bgImage : link.coverUrl})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               filter: `blur(${theme.coverBlur}px) saturate(1.3)`,
@@ -192,7 +192,7 @@ export function SmartLinkView({ link, platforms, theme, preview = false }: Props
 
         <footer className="mt-auto pt-10 text-center">
           <span className="text-[11px] font-medium tracking-wide" style={{ color: subtext }}>
-            ◆ Powered by SmartLink
+            Made with ◆ Linkhub
           </span>
         </footer>
       </main>

@@ -7,6 +7,16 @@
   --font-mono: var(--font-mono);
 }
 
+:root {
+  /* Linkhub brand */
+  --lh-bg: #07070b;
+  --lh-surface: rgba(255, 255, 255, 0.035);
+  --lh-border: rgba(255, 255, 255, 0.08);
+  --lh-accent: #cbff4d; /* electric lime */
+  --lh-accent-2: #00e0c6; /* teal glow */
+  --lh-ink: #0a0a0f; /* text on accent */
+}
+
 html {
   -webkit-text-size-adjust: 100%;
 }
@@ -15,13 +25,41 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* Admin chrome uses a neutral dark surface. */
+input[type="range"] {
+  accent-color: var(--lh-accent);
+}
+
+/* Studio + marketing chrome: deep canvas, aurora glow, fine grain. */
 .admin-surface {
+  position: relative;
   background:
-    radial-gradient(1200px 600px at 80% -10%, rgba(99, 102, 241, 0.12), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(16, 185, 129, 0.1), transparent 55%),
-    #0b0b11;
-  color: #e7e7ee;
+    radial-gradient(900px 520px at 82% -8%, rgba(203, 255, 77, 0.1), transparent 60%),
+    radial-gradient(760px 480px at -8% 108%, rgba(0, 224, 198, 0.09), transparent 55%),
+    var(--lh-bg);
+  color: #ededf2;
+}
+
+/* Fine film grain overlay for texture/depth. */
+.admin-surface::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.admin-surface > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Accent helpers */
+.lh-accent-text {
+  color: var(--lh-accent);
+}
+.lh-glow {
+  box-shadow: 0 0 0 1px rgba(203, 255, 77, 0.25), 0 14px 40px -14px rgba(203, 255, 77, 0.4);
 }
 
 @keyframes slfade {
@@ -34,12 +72,19 @@ body {
     transform: translateY(0);
   }
 }
-
 .sl-rise {
   animation: slfade 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Hide scrollbars on the live phone preview without losing scroll. */
+@keyframes lhfloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

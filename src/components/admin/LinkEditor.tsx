@@ -4,17 +4,12 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { DSPS } from "@/lib/dsp";
-import {
-  ThemeConfig,
-  THEME_PRESETS,
-  DEFAULT_THEME,
-  BackgroundType,
-  FontKey,
-  ButtonStyle,
-} from "@/lib/theme";
+import { ThemeConfig, DEFAULT_THEME } from "@/lib/theme";
 import { SmartLinkView } from "@/components/SmartLinkView";
 import { saveLink, deleteLink, extractAccent } from "@/app/admin/actions";
 import { slugify } from "@/lib/slug";
+import { Field, inputCls, PhoneFrame } from "./controls";
+import { ThemeControls } from "./ThemeControls";
 
 export interface EditorInitial {
   id?: string;
@@ -47,7 +42,6 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
   const [pending, startTransition] = useTransition();
   const [extracting, setExtracting] = useState(false);
 
-  // Auto-derive slug from title until the artist edits it manually.
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
   }, [title, slugTouched]);
@@ -96,7 +90,7 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
       if (r?.error) setError(r.error);
       else if (r?.ok) {
         setSavedSlug(r.slug!);
-        if (r.id) setLinkId(r.id); // switch to edit mode after first create
+        if (r.id) setLinkId(r.id);
         router.refresh();
       }
     });
@@ -114,7 +108,6 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-      {/* ---------- Controls ---------- */}
       <div className="order-2 flex flex-col gap-7 lg:order-1">
         <Section title="Track details">
           <Field label="Title">
@@ -124,12 +117,7 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
             <input className={inputCls} value={artistName} onChange={(e) => setArtistName(e.target.value)} placeholder="Artist" />
           </Field>
           <Field label="Cover image URL">
-            <div className="flex gap-2">
-              <input className={inputCls} value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
-              <button type="button" onClick={onExtract} disabled={extracting} className="shrink-0 rounded-xl border border-white/15 px-3 text-[13px] font-semibold hover:bg-white/10 disabled:opacity-50">
-                {extracting ? "…" : "🎨 Accent"}
-              </button>
-            </div>
+            <input className={inputCls} value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Custom slug">
@@ -164,77 +152,13 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
         </Section>
 
         <Section title="Theme constructor">
-          <Field label="Start from a preset">
-            <div className="flex flex-wrap gap-2">
-              {THEME_PRESETS.map((p) => (
-                <button key={p.id} type="button" onClick={() => setTheme({ ...p.config })} className="rounded-full border border-white/15 px-3.5 py-1.5 text-[13px] font-semibold hover:bg-white/10">
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </Field>
-
-          <Field label="Background">
-            <Segmented<BackgroundType>
-              value={theme.background}
-              options={[["cover", "Cover blur"], ["gradient", "Gradient"], ["solid", "Solid"]]}
-              onChange={(v) => patchTheme({ background: v })}
-            />
-          </Field>
-
-          {theme.background === "cover" && (
-            <Field label={`Cover blur — ${theme.coverBlur}px`}>
-              <input type="range" min={0} max={120} value={theme.coverBlur} onChange={(e) => patchTheme({ coverBlur: +e.target.value })} className="w-full accent-indigo-400" />
-            </Field>
-          )}
-          {theme.background !== "cover" && (
-            <div className="grid grid-cols-2 gap-3">
-              <ColorField label={theme.background === "solid" ? "Color" : "Color 1"} value={theme.bgFrom} onChange={(v) => patchTheme({ bgFrom: v })} />
-              {theme.background === "gradient" && (
-                <ColorField label="Color 2" value={theme.bgTo} onChange={(v) => patchTheme({ bgTo: v })} />
-              )}
-            </div>
-          )}
-          {theme.background === "gradient" && (
-            <Field label={`Gradient angle — ${theme.bgAngle}°`}>
-              <input type="range" min={0} max={360} value={theme.bgAngle} onChange={(e) => patchTheme({ bgAngle: +e.target.value })} className="w-full accent-indigo-400" />
-            </Field>
-          )}
-
-          <Field label="Font">
-            <Segmented<FontKey>
-              value={theme.font}
-              options={[["display", "Display"], ["sans", "Sans"], ["serif", "Serif"], ["mono", "Mono"]]}
-              onChange={(v) => patchTheme({ font: v })}
-            />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-3">
-            <ColorField label="Accent" value={theme.accent} onChange={(v) => patchTheme({ accent: v })} />
-            <Field label="Text scheme">
-              <Segmented<string>
-                value={theme.dark ? "dark" : "light"}
-                options={[["dark", "Light text"], ["light", "Dark text"]]}
-                onChange={(v) => patchTheme({ dark: v === "dark" })}
-              />
-            </Field>
-          </div>
-
-          <Field label="Button style">
-            <Segmented<ButtonStyle>
-              value={theme.buttonStyle}
-              options={[["glass", "Glass"], ["solid", "Solid"], ["outline", "Outline"]]}
-              onChange={(v) => patchTheme({ buttonStyle: v })}
-            />
-          </Field>
-
-          <Field label={`Corner radius — ${theme.radius}px`}>
-            <input type="range" min={0} max={36} value={theme.radius} onChange={(e) => patchTheme({ radius: +e.target.value })} className="w-full accent-indigo-400" />
-          </Field>
-
-          <button type="button" onClick={() => setTheme({ ...DEFAULT_THEME })} className="self-start text-[12px] text-white/40 hover:text-white">
-            Reset theme
-          </button>
+          <ThemeControls
+            theme={theme}
+            onPatch={patchTheme}
+            onReset={() => setTheme({ ...DEFAULT_THEME })}
+            onExtractAccent={onExtract}
+            extracting={extracting}
+          />
         </Section>
 
         {error && <p className="rounded-lg bg-red-500/15 px-3 py-2 text-[13px] text-red-300">{error}</p>}
@@ -267,7 +191,6 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
         )}
       </div>
 
-      {/* ---------- Live preview ---------- */}
       <div className="order-1 lg:order-2">
         <div className="lg:sticky lg:top-20">
           <p className="mb-3 text-center text-[12px] font-semibold uppercase tracking-[0.2em] text-white/40">Live preview</p>
@@ -285,71 +208,11 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
   );
 }
 
-const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[15px] text-white outline-none transition-colors placeholder:text-white/25 focus:border-white/30";
-
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-[13px] font-bold uppercase tracking-[0.18em] text-white/50">{title}</h2>
       {children}
     </section>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[13px] font-medium text-white/60">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function Segmented<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: [T, string][];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
-      {options.map(([v, label]) => (
-        <button
-          key={v}
-          type="button"
-          onClick={() => onChange(v)}
-          className={`flex-1 rounded-lg px-2 py-2 text-[13px] font-semibold transition-colors ${
-            value === v ? "bg-white text-black" : "text-white/60 hover:text-white"
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return (
-    <Field label={label}>
-      <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-2 py-1.5">
-        <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="h-8 w-9 shrink-0 cursor-pointer rounded bg-transparent" />
-        <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-transparent text-[14px] uppercase outline-none" />
-      </div>
-    </Field>
-  );
-}
-
-function PhoneFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mx-auto w-full max-w-[320px]">
-      <div className="relative aspect-[9/19] overflow-hidden rounded-[2.4rem] border-[10px] border-black bg-black shadow-2xl">
-        <div className="no-scrollbar h-full w-full overflow-y-auto">{children}</div>
-      </div>
-    </div>
   );
 }

@@ -22,7 +22,32 @@ export async function login(_prev: unknown, formData: FormData) {
   session.artistId = artist.id;
   session.email = artist.email;
   await session.save();
-  redirect("/admin/links");
+
+  // New accounts with no pages start in the onboarding wizard.
+  const linkCount = await prisma.smartLink.count({ where: { artistId: artist.id } });
+  redirect(linkCount === 0 ? "/admin/onboarding" : "/admin/links");
+}
+
+export async function signup(_prev: unknown, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+
+  if (!name || !email || !password) return { error: "All fields are required" };
+  if (password.length < 6) return { error: "Password must be at least 6 characters" };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Enter a valid email" };
+
+  const existing = await prisma.artist.findUnique({ where: { email } });
+  if (existing) return { error: "An account with this email already exists" };
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const artist = await prisma.artist.create({ data: { name, email, passwordHash } });
+
+  const session = await getSession();
+  session.artistId = artist.id;
+  session.email = artist.email;
+  await session.save();
+  redirect("/admin/onboarding");
 }
 
 export async function logout() {

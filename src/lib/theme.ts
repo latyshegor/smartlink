@@ -1,7 +1,7 @@
 // Theme constructor: artist customizes background, font, accent, button style.
 // Stored as SmartLink.themeConfig (JSON), rendered via CSS variables.
 
-export type BackgroundType = "cover" | "gradient" | "solid";
+export type BackgroundType = "cover" | "gradient" | "solid" | "image";
 export type FontKey = "sans" | "display" | "serif" | "mono";
 export type ButtonStyle = "glass" | "solid" | "outline";
 
@@ -10,7 +10,8 @@ export interface ThemeConfig {
   bgFrom: string; // gradient/solid color 1
   bgTo: string; // gradient color 2
   bgAngle: number; // gradient angle (deg)
-  coverBlur: number; // px blur when background = cover
+  coverBlur: number; // px blur when background = cover/image
+  bgImage: string; // custom background image (data URL or URL) when background = image
   font: FontKey;
   accent: string; // hex, drives buttons/highlights
   buttonStyle: ButtonStyle;
@@ -31,6 +32,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   bgTo: "#0f0f1a",
   bgAngle: 160,
   coverBlur: 60,
+  bgImage: "",
   font: "display",
   accent: "#1DB954",
   buttonStyle: "glass",
@@ -53,6 +55,7 @@ export const THEME_PRESETS: { id: string; label: string; config: ThemeConfig }[]
       bgTo: "#f4f1ea",
       bgAngle: 0,
       coverBlur: 0,
+      bgImage: "",
       font: "serif",
       accent: "#1a1a1a",
       buttonStyle: "outline",
@@ -69,6 +72,7 @@ export const THEME_PRESETS: { id: string; label: string; config: ThemeConfig }[]
       bgTo: "#3a0ca3",
       bgAngle: 135,
       coverBlur: 0,
+      bgImage: "",
       font: "display",
       accent: "#ffd60a",
       buttonStyle: "solid",
@@ -85,6 +89,7 @@ export const THEME_PRESETS: { id: string; label: string; config: ThemeConfig }[]
       bgTo: "#7c2d92",
       bgAngle: 150,
       coverBlur: 0,
+      bgImage: "",
       font: "sans",
       accent: "#ffffff",
       buttonStyle: "glass",
@@ -102,6 +107,7 @@ export function normalizeTheme(input: unknown): ThemeConfig {
     bgTo: t.bgTo ?? DEFAULT_THEME.bgTo,
     bgAngle: typeof t.bgAngle === "number" ? t.bgAngle : DEFAULT_THEME.bgAngle,
     coverBlur: typeof t.coverBlur === "number" ? t.coverBlur : DEFAULT_THEME.coverBlur,
+    bgImage: typeof t.bgImage === "string" ? t.bgImage : DEFAULT_THEME.bgImage,
     font: t.font ?? DEFAULT_THEME.font,
     accent: t.accent ?? DEFAULT_THEME.accent,
     buttonStyle: t.buttonStyle ?? DEFAULT_THEME.buttonStyle,

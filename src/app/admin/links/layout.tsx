@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireArtist } from "@/lib/auth";
 import { logout } from "@/app/admin/actions";
+import { Logo } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,10 @@ export default async function LinksLayout({
 
   return (
     <div className="admin-surface min-h-screen">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0b0b11]/80 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-white/8 bg-[#07070b]/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5">
-          <Link href="/admin/links" className="flex items-center gap-2 font-bold">
-            <span className="text-[15px]">◆ SmartLink</span>
+          <Link href="/admin/links">
+            <Logo size={22} textClass="text-[16px]" />
           </Link>
           <div className="flex items-center gap-4">
             <span className="hidden text-[13px] text-white/40 sm:block">{artist.email}</span>
