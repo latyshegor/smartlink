@@ -23,7 +23,9 @@ In the direction of Hypeddit / feature.fm — built as a working MVP.
   mocked; the clicks you make are stored and counted.
 - **Spotify pre-save (real OAuth)** — the "Save on Spotify" button runs the real
   Spotify OAuth flow, stores the user's tokens in a `PreSave` row, and saves the
-  track straight to their library.
+  track straight to their library. *(The Spotify app is in development mode, so to
+  actually complete a save your Spotify account must be on the app's allow-list —
+  see "Trying the pre-save" below.)*
 - **Admin** (`/admin`) — password login, create/edit pages, and a per-platform
   click dashboard with a 14-day trend.
 - **Theme constructor** (the surprise feature) — instead of fixed templates, each
@@ -84,6 +86,15 @@ Admin: `/admin` → `artist@smartlink.app` / `demo1234`.
 2. Add `<NEXT_PUBLIC_BASE_URL>/api/spotify/callback` to the app's **Redirect URIs**.
 3. Put the client id/secret in `.env`. Without them, the pre-save button degrades
    gracefully (shows a "not configured" notice instead of erroring).
+
+### Trying the pre-save on the live demo
+
+The live deployment already has a Spotify app wired up. Spotify keeps new apps in
+**development mode**, which only lets allow-listed Spotify accounts complete the
+flow (up to 25). To try it end-to-end, send me the email on your Spotify account
+and I'll add it (Spotify Dashboard → app → **User Management**), or I can record a
+quick clip of the real save. Clicking "Save on Spotify" always reaches the genuine
+Spotify authorization screen — the allow-list only gates the final consent.
 
 ## Project layout
 
