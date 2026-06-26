@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Logo, LogoMark } from "@/components/Logo";
+import { HeroDots } from "@/components/HeroDots";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,9 @@ export default async function Home() {
 
   return (
     <div className="admin-surface min-h-screen">
+      {/* Interactive glowing-dots background */}
+      <HeroDots />
+
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Logo size={24} textClass="text-[17px]" />
@@ -26,11 +30,7 @@ export default async function Home() {
 
       {/* Hero */}
       <main className="mx-auto max-w-6xl px-6">
-        <section className="flex flex-col items-center pt-16 text-center sm:pt-24">
-          <span className="sl-rise mb-7 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-1.5 text-[12px] font-semibold uppercase tracking-[0.18em] text-white/65">
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--lh-accent)" }} />
-            For artists & labels
-          </span>
+        <section className="flex flex-col items-center pt-24 text-center sm:pt-32">
           <h1
             className="sl-rise max-w-3xl text-[44px] font-bold leading-[0.98] tracking-[-0.03em] sm:text-[76px]"
             style={{ fontFamily: "var(--font-display)", animationDelay: "60ms" }}

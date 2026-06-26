@@ -53,6 +53,11 @@ input[type="range"] {
   position: relative;
   z-index: 1;
 }
+/* Interactive dots canvas sits behind content. */
+.admin-surface > canvas.hero-dots {
+  position: absolute;
+  z-index: 0;
+}
 
 /* Accent helpers */
 .lh-accent-text {

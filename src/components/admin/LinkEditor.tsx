@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { DSPS } from "@/lib/dsp";
@@ -8,6 +8,7 @@ import { ThemeConfig, DEFAULT_THEME } from "@/lib/theme";
 import { SmartLinkView } from "@/components/SmartLinkView";
 import { saveLink, deleteLink, extractAccent } from "@/app/admin/actions";
 import { slugify } from "@/lib/slug";
+import { fileToDataUrl } from "@/lib/upload";
 import { Field, inputCls, PhoneFrame } from "./controls";
 import { ThemeControls } from "./ThemeControls";
 
@@ -41,6 +42,21 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
   const [qr, setQr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [extracting, setExtracting] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverRef = useRef<HTMLInputElement>(null);
+
+  async function onCoverUpload(file?: File) {
+    if (!file) return;
+    setCoverUploading(true);
+    setError(null);
+    try {
+      setCoverUrl(await fileToDataUrl(file, 900));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setCoverUploading(false);
+    }
+  }
 
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
@@ -116,8 +132,24 @@ export function LinkEditor({ initial }: { initial: EditorInitial }) {
           <Field label="Artist name">
             <input className={inputCls} value={artistName} onChange={(e) => setArtistName(e.target.value)} placeholder="Artist" />
           </Field>
-          <Field label="Cover image URL">
-            <input className={inputCls} value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} placeholder="https://…/cover.jpg" />
+          <Field label="Cover artwork">
+            <div className="flex flex-col gap-2">
+              <input
+                className={inputCls}
+                value={coverUrl.startsWith("data:") ? "" : coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+                placeholder="Paste an image URL…"
+              />
+              <input ref={coverRef} type="file" accept="image/*" className="hidden" onChange={(e) => onCoverUpload(e.target.files?.[0])} />
+              <button
+                type="button"
+                onClick={() => coverRef.current?.click()}
+                disabled={coverUploading}
+                className="self-start rounded-xl border border-white/15 px-4 py-2.5 text-[13px] font-semibold hover:bg-white/10 disabled:opacity-50"
+              >
+                {coverUploading ? "Processing…" : coverUrl.startsWith("data:") ? "↻ Replace upload" : "⬆ …or upload a file"}
+              </button>
+            </div>
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Custom slug">
