@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Logo, LogoMark } from "@/components/Logo";
-import { HeroDots } from "@/components/HeroDots";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +13,6 @@ export default async function Home() {
 
   return (
     <div className="admin-surface min-h-screen">
-      {/* Interactive glowing-dots background */}
-      <HeroDots />
-
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Logo size={24} textClass="text-[17px]" />
