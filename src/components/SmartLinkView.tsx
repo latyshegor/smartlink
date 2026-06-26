@@ -70,7 +70,9 @@ export function SmartLinkView({ link, platforms, theme, preview = false }: Props
 
   return (
     <div
-      className="relative flex min-h-full w-full flex-col items-center overflow-hidden"
+      className={`relative flex w-full flex-col items-center overflow-hidden ${
+        preview ? "min-h-full" : "min-h-[100dvh]"
+      }`}
       style={{ ...backgroundStyle(theme), fontFamily: FONT_VAR[theme.font], color: text }}
     >
       {/* Cover-driven or custom-image blurred backdrop */}
